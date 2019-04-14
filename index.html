@@ -535,7 +535,7 @@
             var ballImg = drawPlantPart(plantBall);
 
             var ballCentreX = Math.random() * 500;
-            var ballCentreY = 200 + Math.random() * 300;
+            var ballCentreY = Math.random() * 300;
             var cp1X = 125 + Math.random() * 250;
             var cp1Y = 580 * (2/3) + ballCentreY * (1/3);
             var cp2X = 125 + Math.random() * 250;
@@ -543,7 +543,7 @@
 
             function animateBallCentre() {
                 var tempX = Math.random() * 500;
-                var tempY = 200 + Math.random() * 200;
+                var tempY = Math.random() * 300;
                 $({ left: ballCentreX, top: ballCentreY }).animate({ left: tempX + 'px', top: tempY + 'px' }, {
                         duration: 5000 + Math.floor(Math.random() * 10000),
                         easing: 'swing',
