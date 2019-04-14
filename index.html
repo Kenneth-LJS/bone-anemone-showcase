@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>The Bone Anemone - Loh Jia Shun, Kenneth</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Cute+Font|Lato" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <audio id="bgm" loop>
+        <source src="assets/bgm.mp3" type="audio/mpeg" preload="auto">
+        Your browser does not support the audio element.
+    </audio>
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .display-div {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .bg-div {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+
+            background-image: url("assets/bg.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center bottom;
+        }
+
+        .bubbles-div {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading-div {
+            display: flex;
+            justify-content: center;
+
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        #loader-loop {
+            animation: rotation 1.5s infinite linear;
+            -webkit-animation: rotation 1.5s infinite linear;
+
+            align-self: center;
+        }
+
+        @keyframes rotation {
+            from {
+                -webkit-transform: rotate(0deg);
+            }
+            to {
+                -webkit-transform: rotate(359deg);
+            }
+        }
+
+        .info-div {
+            position: fixed;
+            left: 33%;
+            top: 0px;
+
+            width: 50px;
+            height: 100%;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 10%;
+            left: -250px;
+            width: 400px;
+            
+            height: 80%;
+
+            border-radius: 10px;
+            border: solid rgba(37, 172, 226, 0.6) 5px;
+            background-color: rgba(37, 172, 226, 0.3);
+        }
+
+        .panel-container {
+            padding: 5px 20px 5px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 50px;
+            font-family: 'Cute Font', cursive;
+            margin: 10px 0px 10px 0px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 30px;
+            font-family: 'Cute Font', cursive;
+            margin: -20px 0px 10px 0px;
+        }
+
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            text-align: center;
+        }
+        
+        p {
+            font-family: 'Lato', sans-serif;
+            font-size: 18px;
+            line-height: 22px;
+            text-align: left;
+            padding: "0px 10px 0px 10px";
+        }
+
+        .plant-div {
+            position: fixed;
+            left: 66%;
+            top: 100%;
+
+            zoom: 1;
+            -moz-transform: scale(1);
+            transform-origin: 0px 0px;
+        }
+
+        .plant {
+            position: absolute;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        #plant-leaf-01 {
+            transform-origin: 52px 182px;
+        }
+
+        #plant-leaf-02 {
+            transform-origin: 58px 132px;
+        }
+
+        #plant-leaf-03 {
+            transform-origin: 67px 171px;
+        }
+
+        #plant-leaf-04 {
+            transform-origin: 99px 162px;
+        }
+
+        #plant-leaf-05 {
+            transform-origin: 136px 90px;
+        }
+
+        #plant-leaf-06 {
+            transform-origin: 93px 186px;
+        }
+
+        #plant-leaf-07 {
+            transform-origin: 53px 209px;
+        }
+
+        #plant-leaf-08 {
+            transform-origin: 44px 202px;
+        }
+
+        #plant-leaf-09 {
+            transform-origin: 37px 176px;
+        }
+
+        #plant-leaf-10 {
+            transform-origin: 27px 76px;
+        }
+
+        #plant-leaf-11 {
+            transform-origin: 48px 175px;
+        }
+
+        #plant-leaf-12 {
+            transform-origin: 51px 181px;
+        }
+
+        .bubble {
+            position: absolute;
+
+            background-image: url("assets/bubble.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+ 
+    </style>
+    <script>
+
+        var PLAY_BGM = true;
+
+        function drawLoadingLoop() {
+            var canvas = document.getElementById("loader-loop");
+            var ctx = canvas.getContext('2d');
+            ctx.beginPath();
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineCap = "round";
+            ctx.arc(50, 50, 50 - 10, 0, Math.PI * 13 / 10);
+            ctx.stroke();
+        }
+
+        function bubbleLoop() {
+            var coreXPosition = Math.round(Math.random() * (window.innerWidth + 1000)) - 500;
+            var startYPosition = window.innerHeight + 500;
+            var bubbleCount = Math.random() < 0.5 ? 1 : (Math.floor(Math.random() * 5) + 2);
+
+            var duration = Math.floor(Math.random() * 10000) + 20000;
+            for (var i = 0; i < bubbleCount; i++) {
+                const startX = coreXPosition + Math.floor(Math.random() * 51) - 25;
+                var size = 5 + Math.floor(Math.random() * 10);
+                var freq = (Math.random() * 2000) + 3000;
+                var bubble = $('<div></div>')
+                                .addClass('bubble')
+                                .css({ top: ((startYPosition + Math.floor(Math.random() * 201) - 100) + 'px'),
+                                        left: (startX + 'px'),
+                                        width: (size + 'px'),
+                                        height: (size + 'px'),
+                                        opacity: (Math.random() * 0.5 + 0.3) + '' });
+
+                $('.bubbles-div').append(bubble);
+                bubble.animate({ top: '-500px' }, {
+                    duration: duration,
+                    easing: 'linear', 
+                    step: function(yPos, data) {
+                        var xPos = startX + (Math.sin(yPos / freq) * 100);
+                        data.elem.style.left = xPos + 'px';
+                    }
+                });
+            }
+            setTimeout(bubbleLoop, 1000 + Math.floor(Math.random() * 5000));
+        }
+
+        // scale psd file to height = 750 then export part
+
+        var plantBase = [
+            {
+                id: 'plant-scales',
+                src: 'scales',
+                width: 235,
+                height: 145,
+                left: -115,
+                top: -423
+            },
+            {
+                id: 'plant-pod-front-glow',
+                src: 'pod-front-glow',
+                width: 271,
+                height: 173,
+                left: -123,
+                top: -333
+            },
+            {
+                id: 'plant-pod-front',
+                src: 'pod-front',
+                width: 271,
+                height: 173,
+                left: -123,
+                top: -333
+            },
+            {
+                id: 'plant-stem',
+                src: 'stem',
+                width: 313,
+                height: 136,
+                left: -136,
+                top: -377
+            },
+            {
+                id: 'plant-roots',
+                src: 'roots',
+                width: 313,
+                height: 206,
+                left: -136,
+                top: -241
+            },
+            {
+                id: 'plant-pod-back',
+                src: 'pod-back',
+                width: 201,
+                height: 72,
+                left: -90,
+                top: -320
+            },
+            {
+                id: 'plant-rock',
+                src: 'rock',
+                width: 403,
+                height: 417,
+                left: -200,
+                top: -280
+            }
+        ].reverse();
+
+        var plantCentre = [
+            {
+                id: 'plant-mouth',
+                src: 'mouth',
+                width: 63,
+                height: 38,
+                left: -22,
+                top: -430
+            },
+            {
+                id: 'plant-centre',
+                src: 'centre',
+                width: 217,
+                height: 108,
+                left: -105,
+                top: -458
+            }
+        ].reverse();
+
+        var plantBall = {
+                id: 'plant-ball',
+                src: 'ball',
+                width: 225 * 0.7,
+                height: 228 * 0.7,
+                left: -117,
+                top: -855
+            };
+
+        var plantBackLeaves = [
+            {
+                id: 'plant-leaf-01',
+                src: 'leaf-01',
+                width: 105,
+                height: 204,
+                left: -45,
+                top: -650
+            },
+            {
+                id: 'plant-leaf-11',
+                src: 'leaf-11',
+                width: 125,
+                height: 207,
+                left: 45,
+                top: -625
+            },
+            {
+                id: 'plant-leaf-12',
+                src: 'leaf-12',
+                width: 110,
+                height: 205,
+                left: -15,
+                top: -605
+            },
+            {
+                id: 'plant-leaf-10',
+                src: 'leaf-10',
+                width: 170,
+                height: 101,
+                left: 65,
+                top: -505
+            },
+            {
+                id: 'plant-leaf-05',
+                src: 'leaf-05',
+                width: 163,
+                height: 116,
+                left: -205,
+                top: -505
+            },
+            {
+                id: 'plant-leaf-04',
+                src: 'leaf-04',
+                width: 128,
+                height: 183,
+                left: -165,
+                top: -585
+            },
+            {
+                id: 'plant-leaf-03',
+                src: 'leaf-03',
+                width: 97,
+                height: 195,
+                left: -130,
+                top: -635
+            },
+            {
+                id: 'plant-leaf-02',
+                src: 'leaf-02',
+                width: 92,
+                height: 153,
+                left: -95,
+                top: -595
+            }
+        ].reverse();
+
+        var plantFrontLeaves = [
+            {
+                id: 'plant-leaf-08',
+                src: 'leaf-08',
+                width: 117,
+                height: 227,
+                left: 10,
+                top: -560
+            },
+            {
+                id: 'plant-leaf-09',
+                src: 'leaf-09',
+                width: 144,
+                height: 207,
+                left: 23,
+                top: -575
+            },
+            {
+                id: 'plant-leaf-06',
+                src: 'leaf-06',
+                width: 120,
+                height: 223,
+                left: -155,
+                top: -577
+            },
+            {
+                id: 'plant-leaf-07',
+                src: 'leaf-07',
+                width: 111,
+                height: 233,
+                left: -110,
+                top: -585
+            }
+        ].reverse();
+
+        var plantDrawOrder = plantBackLeaves.concat(plantCentre).concat(plantFrontLeaves).concat(plantBase);
+
+        function drawPlantPart(partData) {
+            var plantPart = $('<img>')
+                            .attr('id', partData.id)
+                            .addClass('plant')
+                            .attr('src', 'assets/plant/' + partData.src + '.png')
+                            .attr('data-src', 'assets/plant/' + partData.src + '.png')
+                            .attr('data-highlight-src', 'assets/plant/' + partData.src + '_highlight.png')
+                            .css({
+                                    left: partData.left + 'px',
+                                    top: partData.top + 'px',
+                                    width: partData.width + 'px',
+                                    height: partData.height + 'px'
+                                });
+
+            $('.plant-div').append(plantPart);
+            return plantPart;
+        }
+
+        $.fn.animateRotate = function(prevAngle, angle, duration, easing, complete) {
+            return this.each(function() {
+                var $elem = $(this);
+
+                $({deg: prevAngle}).animate({deg: angle}, {
+                duration: duration,
+                easing: easing,
+                step: function(now) {
+                    $elem.css({
+                    transform: 'rotate(' + now + 'deg)'
+                    });
+                },
+                complete: complete || $.noop
+                });
+            });
+        };
+
+        function drawPlant() {
+            var plantDrawOrder = [].concat(plantBackLeaves).concat(plantCentre);
+            for (var i = 0; i < plantDrawOrder.length; i++) {
+                drawPlantPart(plantDrawOrder[i]);
+            }
+            
+            // Draw ball
+            drawAndAnimateBall();
+
+            plantDrawOrder = [].concat(plantFrontLeaves).concat(plantBase);
+            for (var i = 0; i < plantDrawOrder.length; i++) {
+                drawPlantPart(plantDrawOrder[i]);
+            }
+
+            const leaves = [].concat(plantFrontLeaves).concat(plantBackLeaves);
+            var leafAnimation = [];
+            for (var i = 0; i < leaves.length; i++) {
+                const leaf = leaves[i];
+                const index = i;
+                if (Math.random() > 0.5) {
+                    $('#' + leaf.id).css({ transform: 'rotate(-3)' });
+                    leafAnimation[index] = function() {
+                        $('#' + leaf.id).animateRotate(-3, 3, 5000 + Math.random() * 3000, 'swing',
+                            () => $('#' + leaf.id).animateRotate(3, -3, 5000 + Math.random() * 3000, 'swing', leafAnimation[index]));
+                    }
+                } else {
+                    $('#' + leaf.id).css({ transform: 'rotate(3)' });
+                    leafAnimation[index] = function() {
+                        $('#' + leaf.id).animateRotate(3, -3, 5000 + Math.random() * 3000, 'swing',
+                            () => $('#' + leaf.id).animateRotate(-3, 3, 5000 + Math.random() * 3000, 'swing', leafAnimation[index]));
+                    }
+                }
+                leafAnimation[index]();
+            }
+
+        }
+
+        function drawAndAnimateBall() {
+            var filament = $('<canvas></canvas>')
+                                .attr('id', 'filament-canvas')
+                                .addClass('plant')
+                                .attr('width', '500px')
+                                .attr('height', '1000px')
+                                .css({
+                                        opacity: 0.5,
+                                        left: '-250px',
+                                        top: '-1000px',
+                                        width: '500px',
+                                        height: '1000px'
+                                    });
+            $('.plant-div').append(filament);
+            const filamentCanvas = filament.get(0).getContext('2d');
+            filamentCanvas.lineWidth = 4;
+            filamentCanvas.strokeStyle = '#3E9ABC';
+
+            var ballImg = drawPlantPart(plantBall);
+
+            var ballCentreX = Math.random() * 500;
+            var ballCentreY = 200 + Math.random() * 300;
+            var cp1X = 125 + Math.random() * 250;
+            var cp1Y = 580 * (2/3) + ballCentreY * (1/3);
+            var cp2X = 125 + Math.random() * 250;
+            var cp2Y = 580 * (1/3) + ballCentreY * (2/3);               
+
+            function animateBallCentre() {
+                var tempX = Math.random() * 500;
+                var tempY = 200 + Math.random() * 200;
+                $({ left: ballCentreX, top: ballCentreY }).animate({ left: tempX + 'px', top: tempY + 'px' }, {
+                        duration: 5000 + Math.floor(Math.random() * 10000),
+                        easing: 'swing',
+                        step: function(val, data) {
+                            if (data.prop == 'left') {
+                                ballCentreX = val;
+                            } else if (data.prop == 'top') {
+                                ballCentreY = val;
+                            }
+                            drawBall(cp1X, cp1Y, cp2X, cp2Y, ballCentreX, ballCentreY, filamentCanvas, ballImg);
+                        },
+                        complete: animateBallCentre
+                    });
+            }
+            animateBallCentre();
+
+            function animateCp1() {
+                var tempX = 125 + Math.random() * 250;
+                var tempY = 580 * (2/3) + ballCentreY * (1/3);
+                $({ left: cp1X, top: cp1Y }).animate({ left: tempX + 'px', top: tempY + 'px' }, {
+                        duration: 5000 + Math.floor(Math.random() * 10000),
+                        easing: 'swing',
+                        step: function(val, data) {
+                            if (data.prop == 'left') {
+                                cp1X = val;
+                            } else if (data.prop == 'top') {
+                                cp1Y = val;
+                            }
+                        },
+                        complete: animateCp1
+                    });
+            }
+            animateCp1();
+
+            function animateCp2() {
+                var tempX = 125 + Math.random() * 250;
+                var tempY = 580 * (1/3) + ballCentreY * (2/3);
+                $({ left: cp2X, top: cp2Y }).animate({ left: tempX + 'px', top: tempY + 'px' }, {
+                        duration: 5000 + Math.floor(Math.random() * 10000),
+                        easing: 'swing',
+                        step: function(val, data) {
+                            if (data.prop == 'left') {
+                                cp2X = val;
+                            } else if (data.prop == 'top') {
+                                cp2Y = val;
+                            }
+                        },
+                        complete: animateCp2
+                    });
+            }
+            animateCp2();
+
+            function animationLoop() {
+                var nextBallCentreX = Math.random() * 500;
+                var nextBallCentreY = Math.random() * 300;
+
+                var ballX = nextBallCentreX - 250 - (plantBall.width / 2);
+                var ballY = nextBallCentreY - 1000 - (plantBall.height / 2);
+                drawBall(0, 0, 100, 100, 0, 0, filamentCanvas, ballImg);
+                ballImg.animate({ left: ballX + 'px', top: ballY + 'px' }, {
+                        duration: 1000,
+                        easing: 'swing',
+                        step: function() {
+                            if (data.prop == 'left') {
+                                ballCentreX = val;
+                            } else if (data.prop == 'top') {
+                                ballCentreY = val;
+                            }
+                            drawFilament
+                        },
+                        complete: animationLoop
+                    });
+            }
+        }
+
+        function drawBall(pt1x, pt1y, pt2x, pt2y, pt3x, pt3y, filamentCanvas, ballImg) {
+            filamentCanvas.clearRect(0, 0, filamentCanvas.canvas.width, filamentCanvas.canvas.height);
+            filamentCanvas.beginPath();
+            filamentCanvas.moveTo(168, 580);
+            filamentCanvas.bezierCurveTo(pt1x, pt1y, pt2x, pt2y, pt3x, pt3y);
+            filamentCanvas.stroke();
+            
+            ballImg.css({
+                left: pt3x - 250 - (plantBall.width / 2),
+                top: pt3y - 1000 - (plantBall.height / 2)
+            });
+        }
+
+        function preloadImage(url) {
+            new Image().src = url;
+        }
+
+        var plantBasePos = { left: 0, top: 0 };
+        var lastMouseMoveEvent = { pageX: 0, pageY: 0 };
+        var curPanel = 'main-panel'
+
+        function updateInfoPanelLoop() {
+            var x = lastMouseMoveEvent.pageX - plantBasePos.left;
+            var y = lastMouseMoveEvent.pageY - plantBasePos.top;
+            var panelId = 'main-panel';
+            var zone = highlightZones[highlightZones.length - 1];
+            for (var i = 0; i < highlightZones.length; i++) {
+                zone = highlightZones[i];
+                if (rectContains(zone.rect, x, y)) {
+                    panelId = zone.panel_id;
+                    break;
+                }
+            }
+            if (curPanel != panelId) {
+
+                $('.highlighted').each(function() {
+                    $(this).remove('highlighted')
+                                .attr('src', $(this).attr('data-src'));
+                });
+
+                zone.highlight.forEach(function(id) {
+                    $('#' + id).addClass('highlighted')
+                                .attr('src', $('#' + id).attr('data-highlight-src'));
+                })
+
+                $('#' + curPanel).slideUp(400, () => {
+                    $('#' + panelId).slideDown(400);
+                    curPanel = panelId;
+                    updateInfoPanelLoop();
+                });
+            } else {
+                setTimeout(updateInfoPanelLoop, 10);
+            }
+        }
+        var highlightZones = [
+            {
+                panel_id: 'ball-panel',
+                rect: { x1: -350, x2: 350, y1: -1000, y2: -650 },
+                highlight: [ 'plant-ball' ]
+            },
+            {
+                panel_id: 'mouth-panel',
+                rect: { x1: -22, x2: 41, y1: -426, y2: -402 },
+                highlight: [ 'plant-mouth' ]
+            },
+            {
+                panel_id: 'leaf-panel',
+                rect: { x1: -200, x2: 200, y1: -650, y2: -370 },
+                highlight: [ 'plant-leaf-01', 'plant-leaf-02', 'plant-leaf-03', 'plant-leaf-04', 'plant-leaf-05', 'plant-leaf-06', 'plant-leaf-07', 'plant-leaf-08', 'plant-leaf-09', 'plant-leaf-10', 'plant-leaf-11', 'plant-leaf-12' ]
+            },
+            {
+                panel_id: 'pod-panel',
+                rect: { x1: -87, x2: 114, y1: -250, y2: -212 },
+                highlight: [ 'plant-pod-front', 'plant-pod-back' ]
+            },
+            {
+                panel_id: 'stem-panel',
+                rect: { x1: -77, x2: 84, y1: -306, y2: -238 },
+                highlight: [ 'plant-stem' ]
+            },
+            {
+                panel_id: 'scale-panel',
+                rect: { x1: -105, x2: 97, y1: -399, y2: -306 },
+                highlight: [ 'plant-scales' ]
+            },
+            {
+                panel_id: 'root-panel',
+                rect: { x1: -131, x2: 195, y1: -238, y2: -62 },
+                highlight: [ 'plant-roots' ]
+            },
+            {
+                panel_id: 'main-panel',
+                rect: { x1: -Infinity, x2: Infinity, y1: -Infinity, y2: Infinity },
+                highlight: []
+            },
+        ];
+
+        function rectContains(rect, x, y) {
+            return rect.x1 <= x && x <= rect.x2 &&
+                    rect.y1 <= y && y <= rect.y2;
+        }
+
+        $(document).ready(function() {
+            drawLoadingLoop();
+            [
+                'assets/anglerfish.jpg',
+                'assets/bg.png',
+                'assets/bubble.png',
+                'assets/cross-section.png',
+                'assets/feeding.gif',
+                'assets/leaf-break.gif',
+                'assets/life-cycle.gif',
+                'assets/map.png',
+                'assets/mouth.png',
+                'assets/roots.png',
+                'assets/size-comparison.png',
+                'assets/plant/ball.png',
+                'assets/plant/ball_highlight.png',
+                'assets/plant/centre.png',
+                'assets/plant/leaf-01.png',
+                'assets/plant/leaf-01_highlight.png',
+                'assets/plant/leaf-02.png',
+                'assets/plant/leaf-02_highlight.png',
+                'assets/plant/leaf-03.png',
+                'assets/plant/leaf-03_highlight.png',
+                'assets/plant/leaf-04.png',
+                'assets/plant/leaf-04_highlight.png',
+                'assets/plant/leaf-05.png',
+                'assets/plant/leaf-05_highlight.png',
+                'assets/plant/leaf-06.png',
+                'assets/plant/leaf-06_highlight.png',
+                'assets/plant/leaf-07.png',
+                'assets/plant/leaf-07_highlight.png',
+                'assets/plant/leaf-08.png',
+                'assets/plant/leaf-08_highlight.png',
+                'assets/plant/leaf-09.png',
+                'assets/plant/leaf-09_highlight.png',
+                'assets/plant/leaf-10.png',
+                'assets/plant/leaf-10_highlight.png',
+                'assets/plant/leaf-11.png',
+                'assets/plant/leaf-11_highlight.png',
+                'assets/plant/leaf-12.png',
+                'assets/plant/leaf-12_highlight.png',
+                'assets/plant/mouth.png',
+                'assets/plant/mouth_highlight.png',
+                'assets/plant/pod-back.png',
+                'assets/plant/pod-back_highlight.png',
+                'assets/plant/pod-front-glow.png',
+                'assets/plant/pod-front.png',
+                'assets/plant/pod-front_highlight.png',
+                'assets/plant/rock.png',
+                'assets/plant/roots.png',
+                'assets/plant/roots_highlight.png',
+                'assets/plant/scales.png',
+                'assets/plant/scales_highlight.png',
+                'assets/plant/stem.png',
+                'assets/plant/stem_highlight.png'
+            ].forEach(preloadImage);
+        });
+
+        $(window).on("load", function() {
+            $('.loading-div').fadeOut(1000);
+            $('.display-div').fadeIn(1000);
+
+            $('#bgm').get(0).volume = 0.2;
+            function playBgm() {
+                $('#bgm').get(0).play().catch(function() {
+                    // Chrome doesn't allow audio playing if user has not yet interacted with window.
+                    // Try again.
+                    setTimeout(playBgm, 100);
+                });
+            };
+            if (PLAY_BGM) {
+                playBgm();
+            }
+
+            $('.display-div').mousemove(e => lastMouseMoveEvent = e);
+            updateInfoPanelLoop();
+            plantBasePos = $('.plant-div').get(0).getBoundingClientRect();
+            $( window ).resize(function() {
+                plantBasePos = $('.plant-div').get(0).getBoundingClientRect();
+            });
+
+            drawPlant();
+            bubbleLoop();
+        });
+    </script>
+</head>
+<body>
+    <div class="display-div" style="display: none;">
+        <div class="bg-div"></div>
+        <div class="plant-div"></div>
+        <div class="bubbles-div"></div>
+        <div class="info-div">
+            <div class="info-panel">
+                <div class="panel-container">
+                    <div id="main-panel" class="panel">
+                        <h1>The Bone Anemone</h1>
+                        <h2>Urticina osseus</h2>
+                        <img src="assets/map.png" style="width: 90%;">
+                        <p>
+                            Urticina osseus, also affectionately known as the Bone Anemone, is a marine, predatory animal of the order Actiniaria, making it closely related to sea anemone.
+                        </p>
+                        <p>
+                            They can be found found in ocean trenches of depths 9km or deeper, making them very elusive.
+                        </p>
+                        <img src="assets/size-comparison.png" style="width: 40%;">
+                    </div>
+                    <div id="ball-panel" class="panel" style="display: none;">
+                            <h1>The Esca</h1>
+                            <h2>The Luminous Orb</h2>
+                            <img src="assets/anglerfish.jpg" style="width: 50%;">
+                            <p>
+                                The biological make up of the luminous orb is very much like the esca of the anglerfish. Its surface is coated with a lot of fine hair-like filament. Light-emitting bacteria in the esca gives it its eerie luminescent glow in the darkness of the sea. This light attracts nearby prey to its comforting light.
+                            </p>
+                            <p>
+                                The esca is connected to the anemone's body with a fine but strong filament that's connected to its body. The filament can retract into its body, luring its prey into the reach of its spined leaves. *SNAP* And its prey is gone.
+                            </p>
+                    </div>
+                    <div id="leaf-panel" class="panel" style="display: none;">
+                            <h1>The Leaves</h1>
+                            <h2>Jaws of Death</h2>
+                            <img src="assets/feeding.gif" style="width: 50%;">
+                            <p>
+                                The leaf-like structure are actually modified tentacles that act as jaws that clamp on the prey it lures with its orb. Spines grow on the edges of these "leaves" which can pierce scales and dig into the flesh of its prey to ensure they do not escape. They grow in an upward spiral from the stem, breaking off as new ones form.
+                            </p>
+                    </div>
+                    <div id="mouth-panel" class="panel" style="display: none;">
+                            <h1>The Mouth</h1>
+                            <h2>Om nom nom</h2>
+                            <img src="assets/mouth.png" style="width: 40%;">
+                            <p>
+                                Just like the sea anemone, it has a mouth with which it uses to consume and digest its prey. It's made out of circular muscles that functions similar to sphincters in the human body, able to open to let its prey into its body, and close to keep it in as it gets digested.
+                            </p>
+                            <p>
+                                Unlike other anemones, it does not release its offspring through its mouth. Instead, pods at the base of its stem produce baby polyps until they are mature enough to be released to find a new place to grow.
+                            </p>
+                    </div>
+                    <div id="scale-panel" class="panel" style="display: none;">
+                            <h1>Calcified Leaf Remnants</h1>
+                            <h2>Spiky spiky</h2>
+                            <img src="assets/leaf-break.gif" style="width: 40%;">
+                            <p>
+                                In the deep sea, everything is useful. Even the calcium from the bones of its prey is deposited in the lower leaves of the plant. Once the leaves are brittle, they fall right off, forming a tough shell that protects the anemone's stem.
+                            </p>
+                    </div>
+                    <div id="pod-panel" class="panel" style="display: none;">
+                            <h1>Polyp Pods</h1>
+                            <h2>Trypophobia Fuel</h2>
+                            <img src="assets/life-cycle.gif" style="width: 90%;">
+                            <p>
+                                Once mature, the polyp pods release hundreds mature polyps which travel for 1-2 kilometres on the ocean currents before settling on the seabed, ready to start the cycle anew.
+                            </p>
+                    </div>
+                    <div id="stem-panel" class="panel" style="display: none;">
+                            <h1>Stem</h1>
+                            <img src="assets/cross-section.png" style="width: 90%;">
+                            <p>
+                                The central core of the anemone, this contains the main body of the animal. This is where you can find its digestive column as well as the muscles that extend and retract the esca's filament.
+                            </p>
+                    </div>
+                    <div id="root-panel" class="panel" style="display: none;">
+                            <h1>Basal Plate</h1>
+                            <h2>"Roots"</h2>
+                            <img src="assets/roots.png" style="width: 60%;">
+                            <p>
+                                The basal plate is normally a disc in sea anemones, but due to the strong undersea currents, the Bone Anemone's basal plate have evolved into root-like structures over time. These "roots" help it to adhere to the seabed with a tight grip.
+                            </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loading-div">
+        <canvas id="loader-loop" width="100" height="100"></canvas>
+    </div>
+</body>
+</html>
